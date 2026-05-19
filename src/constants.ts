@@ -1,14 +1,14 @@
 import { ActivityLog, Product } from './types';
 
-// 国内可访问的产品图片 (百度图片 CDN)
+// 使用 Picsum Photos 作为图片源
 const PRODUCT_IMAGES = [
-  'https://img1.baidu.com/it/u=3892940927,2494704274&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img2.baidu.com/it/u=2436975488,4263995780&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=2072520014,3880287849&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=1393827213,3994754569&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img2.baidu.com/it/u=2808363011,1246026832&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=3489569824,2204550324&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=215806123,3539579518&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
+  'https://picsum.photos/seed/rose/800/600',
+  'https://picsum.photos/seed/monstera/800/600',
+  'https://picsum.photos/seed/fiddle/800/600',
+  'https://picsum.photos/seed/succulent/800/600',
+  'https://picsum.photos/seed/tree/800/600',
+  'https://picsum.photos/seed/flower/800/600',
+  'https://picsum.photos/seed/plant/800/600',
 ];
 
 export const MOCK_PRODUCTS: Product[] = [

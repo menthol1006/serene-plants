@@ -12,8 +12,8 @@ import { storageService } from './services/storageService';
 import { fireAuth } from './lib/firebase';
 import { Leaf } from 'lucide-react';
 
-// 国内可访问的默认产品图片
-const DEFAULT_PRODUCT_IMAGE = 'https://img1.baidu.com/it/u=3489569824,2204550324&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600';
+// 默认产品图片
+const DEFAULT_PRODUCT_IMAGE = 'https://picsum.photos/seed/default/800/600';
 
 export default function App() {
   const [user, setUser] = useState<any>(null);

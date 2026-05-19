@@ -1,0 +1,46 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Botanical product details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Product name" },
+        "category": { "type": "string", "description": "Product category" },
+        "material": { "type": "string", "description": "Material used" },
+        "supplier": { "type": "string", "description": "Supplier name" },
+        "description": { "type": "string", "description": "Detailed description" },
+        "costPrice": { "type": "number", "description": "Internal cost price" },
+        "marketPrice": { "type": "number", "description": "Market selling price" },
+        "stock": { "type": "number", "description": "Current stock quantity" },
+        "image": { "type": "string", "description": "Image URL" },
+        "status": { "type": "string", "enum": ["In Stock", "Low Stock", "Out of Stock"] },
+        "sku": { "type": "string", "description": "SKU identifier" }
+      },
+      "required": ["name", "category", "costPrice", "marketPrice", "stock", "image", "status", "sku"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Log of system activities",
+      "type": "object",
+      "properties": {
+        "productName": { "type": "string" },
+        "action": { "type": "string" },
+        "amount": { "type": "string" },
+        "time": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["inventory", "price", "alert"] }
+      },
+      "required": ["productName", "action", "time", "type"]
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Collection of botanical products"
+    },
+    "activities": {
+      "schema": "ActivityLog",
+      "description": "Collection of activity logs"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  --font-sans: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #5A5A40;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #5A5A40;
+  
+  --color-neutral-bone: #F5F5F0;
+  --color-surface-card: #ffffff;
+  --color-surface-dim: #D6D6CC;
+  --color-surface-bright: #E8E8E1;
+  
+  --color-on-surface: #2D2D2A;
+  --color-on-surface-variant: #5C5C55;
+  --color-outline-variant: #D6D6CC;
+  
+  --color-botanical-green: #3A3A35;
+  --color-secondary: #7c535b;
+}
+
+@layer base {
+  body {
+    @apply bg-neutral-bone text-on-surface font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight text-primary;
+  }
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-surface-dim);
+  border-radius: 10px;
+}

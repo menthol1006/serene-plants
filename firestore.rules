@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation for Product
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'category', 'costPrice', 'marketPrice', 'stock', 'image', 'status', 'sku'])
+        && data.keys().size() <= 15
+        && data.name is string && data.name.size() <= 200
+        && data.category is string && data.category.size() <= 100
+        && data.costPrice is number && data.costPrice >= 0
+        && data.marketPrice is number && data.marketPrice >= 0
+        && data.stock is number && data.stock >= 0
+        && data.image is string && data.image.size() <= 2000
+        && data.status in ['In Stock', 'Low Stock', 'Out of Stock']
+        && data.sku is string && data.sku.size() <= 50;
+    }
+
+    // Validation for ActivityLog
+    function isValidActivityLog(data) {
+      return data.keys().hasAll(['productName', 'action', 'time', 'type'])
+        && data.keys().size() <= 6
+        && data.productName is string && data.productName.size() <= 200
+        && data.action is string && data.action.size() <= 500
+        && data.time is string
+        && data.type in ['inventory', 'price', 'alert'];
+    }
+
+    // --- Collections ---
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn();
+    }
+
+    match /activities/{activityId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+  }
+}

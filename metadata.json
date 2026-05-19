@@ -1,0 +1,8 @@
+{
+  "name": "Botanical Equity",
+  "description": "Refined botanical inventory management system for luxury floral artistry and meticulous asset tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

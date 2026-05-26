@@ -14,7 +14,7 @@ const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 function subscribeToProducts(callback: (products: any[]) => void) {
   console.log('🔔 subscribeToProducts 被调用');
   
-  // 模拟 firebaseService 的行为
+  // 模拟 supabaseService 的行为
   db.products.get().then(products => {
     console.log('📥 初始数据获取完成:', products.length, '个产品');
     callback(products);

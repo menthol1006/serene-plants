@@ -15,13 +15,13 @@ dotenv.config();
 const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
 
-// 国内可访问的产品图片
+// 使用 Picsum Photos 作为图片源
 const PRODUCT_IMAGES = [
-  'https://img1.baidu.com/it/u=3892940927,2494704274&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img2.baidu.com/it/u=2436975488,4263995780&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=2072520014,3880287849&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img1.baidu.com/it/u=1393827213,3994754569&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
-  'https://img2.baidu.com/it/u=2808363011,1246026832&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=600',
+  'https://picsum.photos/seed/rose/800/600',
+  'https://picsum.photos/seed/monstera/800/600',
+  'https://picsum.photos/seed/fiddle/800/600',
+  'https://picsum.photos/seed/succulent/800/600',
+  'https://picsum.photos/seed/tree/800/600',
 ];
 
 const INIT_PRODUCTS = [
@@ -123,7 +123,7 @@ const INIT_ACTIVITIES = [
 ];
 
 async function initSupabase() {
-  console.log('🚀 开始初始化 Supabase 数据库...\n');
+  console.log('🚀 开始清理并重新初始化 Supabase 数据库...\n');
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('❌ 请确保 .env 文件中配置了 Supabase 的 URL 和 ANON_KEY');
@@ -181,71 +181,40 @@ COMMIT;
 
     console.log('   ✓ 已连接 Supabase');
 
-    // 2. 检查是否已有数据
-    console.log('\n2. 检查现有数据...');
-    const { data: existingProducts } = await supabase
-      .from('products')
-      .select('count');
-    
-    const productCount = (existingProducts as any)[0]?.count || 0;
-    console.log(`   - 现有产品: ${productCount} 个`);
+    // 2. 清空现有数据
+    console.log('\n2. 清空现有数据...');
+    console.log('   - 删除活动日志...');
+    await supabase.from('activities').delete().not('id', 'is', null);
+    console.log('   - 删除产品数据...');
+    await supabase.from('products').delete().not('id', 'is', null);
+    console.log('   ✓ 已清空所有数据');
 
-    if (productCount > 0) {
-      console.log('\n⚠️ 数据库中已有产品数据');
-      console.log('💡 你可以选择：');
-      console.log('   1. 保留现有数据（推荐）');
-      console.log('   2. 清空并重新初始化');
-      
-      // 简单起见，我们直接更新现有数据的图片
-      console.log('\n3. 更新现有产品的图片链接...');
-      const { data: productsToUpdate } = await supabase
+    // 3. 初始化产品数据
+    console.log('\n3. 初始化产品数据...');
+    let productSuccess = 0;
+    
+    for (const product of INIT_PRODUCTS) {
+      const { error } = await supabase
         .from('products')
-        .select('id, name, image');
+        .upsert(product);
       
-      let updated = 0;
-      for (let i = 0; i < (productsToUpdate || []).length; i++) {
-        const p = productsToUpdate[i];
-        const { error } = await supabase
-          .from('products')
-          .update({ image: PRODUCT_IMAGES[i % PRODUCT_IMAGES.length] })
-          .eq('id', p.id);
-        
-        if (!error) {
-          console.log(`   ✓ 更新 "${p.name}" 的图片`);
-          updated++;
-        }
+      if (error) {
+        console.log(`   ✗ 导入 "${product.name}" 失败: ${error.message}`);
+      } else {
+        console.log(`   ✓ 导入 "${product.name}" 成功`);
+        productSuccess++;
       }
-      
-      console.log(`\n4. 已更新 ${updated} 个产品的图片`);
-      
-    } else {
-      // 3. 初始化产品数据
-      console.log('\n3. 初始化产品数据...');
-      let productSuccess = 0;
-      
-      for (const product of INIT_PRODUCTS) {
-        const { error } = await supabase
-          .from('products')
-          .upsert(product);
-        
-        if (error) {
-          console.log(`   ✗ 导入 "${product.name}" 失败: ${error.message}`);
-        } else {
-          console.log(`   ✓ 导入 "${product.name}" 成功`);
-          productSuccess++;
-        }
-      }
-      
-      // 4. 初始化活动日志
-      console.log('\n4. 初始化活动日志...');
-      for (const activity of INIT_ACTIVITIES) {
-        await supabase
-          .from('activities')
-          .upsert(activity);
-      }
-      
-      console.log(`   ✓ 成功导入 ${productSuccess} 个产品`);
     }
+    
+    // 4. 初始化活动日志
+    console.log('\n4. 初始化活动日志...');
+    for (const activity of INIT_ACTIVITIES) {
+      await supabase
+        .from('activities')
+        .upsert(activity);
+    }
+    
+    console.log(`   ✓ 成功导入 ${productSuccess} 个产品`);
 
     // 5. 验证结果
     console.log('\n5. 验证数据库...');

@@ -1,26 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
+import LandscapeShowcase from './components/LandscapeShowcase';
 import ProductGallery from './components/ProductGallery';
 import DataEntry from './components/DataEntry';
 import Quotes from './components/Quotes';
 import ProductDetail from './components/ProductDetail';
 import { AnimatePresence, motion } from 'motion/react';
-import { Product, ActivityLog } from './types';
-import { firebaseService } from './services/firebaseService';
+import { ActivityLog, LandscapeShowcaseConfig, Product } from './types';
+import { supabaseService } from './services/supabaseService';
 import { storageService } from './services/storageService';
-import { fireAuth } from './lib/firebase';
+import { auth } from './lib/auth';
 import { Leaf } from 'lucide-react';
+import { User } from './types/user';
 
 // 默认产品图片
 const DEFAULT_PRODUCT_IMAGE = 'https://picsum.photos/seed/default/800/600';
 
 export default function App() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [activeView, setActiveView] = useState('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
   const [activities, setActivities] = useState<ActivityLog[]>([]);
+  const [landscapeConfigs, setLandscapeConfigs] = useState<LandscapeShowcaseConfig[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [orderItems, setOrderItems] = useState<{ product: Product; quantity: number }[]>([]);
 
@@ -28,7 +31,7 @@ export default function App() {
 
   useEffect(() => {
     // 监听认证状态变化
-    const unsubscribe = fireAuth.onAuthStateChanged((newUser) => {
+    const unsubscribe = auth.onAuthStateChanged((newUser) => {
       console.log('🔐 认证状态变化:', newUser);
       setUser(newUser);
       setAuthLoading(false);
@@ -49,21 +52,33 @@ export default function App() {
 
     console.log('🚀 App.tsx: 开始订阅数据');
     
-    const unsubProducts = firebaseService.subscribeToProducts((fetchedProducts) => {
-      console.log('📥 App.tsx: 收到产品数据:', fetchedProducts.length, '个');
-      console.log('📋 App.tsx: 产品列表:', fetchedProducts.map(p => p.name));
-      setProducts(fetchedProducts);
-    });
-
-    const unsubActivities = firebaseService.subscribeToActivities((fetchedActivities) => {
-      console.log('📥 App.tsx: 收到活动数据:', fetchedActivities.length, '条');
-      setActivities(fetchedActivities);
+    let unsubProducts: () => void;
+    let unsubActivities: () => void;
+    let unsubLandscape: () => void;
+    
+    Promise.all([
+      supabaseService.subscribeToProducts((fetchedProducts) => {
+        console.log('📥 App.tsx: 收到产品数据:', fetchedProducts.length, '个');
+        console.log('📋 App.tsx: 产品列表:', fetchedProducts.map(p => p.name));
+        setProducts(fetchedProducts);
+      }).then(unsub => { unsubProducts = unsub; }),
+      supabaseService.subscribeToActivities((fetchedActivities) => {
+        console.log('📥 App.tsx: 收到活动数据:', fetchedActivities.length, '条');
+        setActivities(fetchedActivities);
+      }).then(unsub => { unsubActivities = unsub; }),
+      supabaseService.subscribeToLandscapeShowcase((fetchedConfigs) => {
+        console.log('📥 App.tsx: 收到造景配置:', fetchedConfigs.length, '套');
+        setLandscapeConfigs(fetchedConfigs);
+      }).then(unsub => { unsubLandscape = unsub; })
+    ]).then(() => {
+      console.log('✅ 所有订阅初始化完成');
     });
 
     return () => {
       console.log('🔌 App.tsx: 取消订阅');
-      unsubProducts();
-      unsubActivities();
+      unsubProducts?.();
+      unsubActivities?.();
+      unsubLandscape?.();
     };
   }, [currentUser, authLoading]);
 
@@ -96,10 +111,25 @@ export default function App() {
     storageService.exportData(products, activities);
   };
 
+  const handleSaveLandscapeConfig = async (config: LandscapeShowcaseConfig) => {
+    await supabaseService.saveLandscapeShowcase(config);
+    setLandscapeConfigs((previous) => [
+      config,
+      ...previous.filter((existingConfig) => existingConfig.id !== config.id),
+    ]);
+    addActivity('造景展示', '更新了造景展示配置', 'inventory');
+  };
+
+  const handleDeleteLandscapeConfig = async (id: string) => {
+    await supabaseService.deleteLandscapeShowcase(id);
+    setLandscapeConfigs((previous) => previous.filter((config) => config.id !== id));
+    addActivity('造景展示', '删除了一套造景展示', 'alert');
+  };
+
   const handleDeleteProduct = (id: string) => {
     const product = products.find(p => p.id === id);
     if (product) {
-      firebaseService.deleteProduct(id);
+      supabaseService.deleteProduct(id);
       addActivity(product.name, '删除了产品', 'alert');
       setActiveView('gallery');
       setSelectedProductId(null);
@@ -119,7 +149,7 @@ export default function App() {
       newActivity.amount = amount;
     }
 
-    firebaseService.addActivity(newActivity);
+    supabaseService.addActivity(newActivity);
   };
 
   const handleSaveProduct = async (product: Partial<Product>) => {
@@ -139,8 +169,11 @@ export default function App() {
           }
           const updatedProduct = { ...oldProduct, ...product } as Product;
           console.log('📝 准备保存的产品:', updatedProduct);
-          await firebaseService.saveProduct(updatedProduct);
+          await supabaseService.saveProduct(updatedProduct);
           console.log('✅ 现有产品保存完成');
+          
+          console.log('🔄 立即更新本地状态...');
+          setProducts(prev => prev.map(p => p.id === selectedProductId ? updatedProduct : p));
         }
       } else {
         console.log('📝 正在创建新产品...');
@@ -154,15 +187,20 @@ export default function App() {
         } as Product;
 
         console.log('📝 准备保存的新产品:', newProduct);
-        await firebaseService.saveProduct(newProduct);
+        await supabaseService.saveProduct(newProduct);
         addActivity(newProduct.name, '录入了新产品', 'inventory', '新增');
         console.log('✅ 新产品保存完成');
+        
+        console.log('🔄 立即添加到本地状态...');
+        setProducts(prev => [newProduct, ...prev]);
       }
       
-      console.log('🔄 正在重新获取产品列表...');
-      const freshProducts = await firebaseService.getProducts();
-      console.log('✅ 获取到产品数量:', freshProducts.length);
-      setProducts(freshProducts);
+      console.log('🔄 后台刷新产品列表...');
+      setTimeout(async () => {
+        const freshProducts = await supabaseService.getProducts();
+        console.log('✅ 后台刷新完成:', freshProducts.length);
+        setProducts(freshProducts);
+      }, 500);
       
       setActiveView('gallery');
       setSelectedProductId(null);
@@ -182,7 +220,19 @@ export default function App() {
             activities={activities}
             onSelectProduct={(id) => handleSelectProduct(id, 'productDetail')} 
             onViewAll={() => setActiveView('gallery')}
+            onViewShowcase={() => setActiveView('showcase')}
             currentUser={currentUser}
+          />
+        );
+      case 'showcase':
+        return (
+          <LandscapeShowcase
+            products={products}
+            configs={landscapeConfigs}
+            currentUser={currentUser}
+            onSelectProduct={(id) => handleSelectProduct(id, 'productDetail')}
+            onSaveConfig={handleSaveLandscapeConfig}
+            onDeleteConfig={handleDeleteLandscapeConfig}
           />
         );
       case 'gallery':

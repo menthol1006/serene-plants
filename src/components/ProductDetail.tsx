@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Edit2, Trash2, Save, ShoppingCart } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, Edit2, Save, ShoppingCart, Trash2 } from 'lucide-react';
 import { Product } from '../types';
 import { User } from '../types/user';
 
@@ -23,7 +23,6 @@ export default function ProductDetail({ product, onClose, onSave, onDelete, onEd
   }, [product]);
 
   const handleSave = () => {
-    console.log('💾 保存产品:', editedProduct);
     onSave(editedProduct);
     setIsEditing(false);
   };
@@ -35,185 +34,147 @@ export default function ProductDetail({ product, onClose, onSave, onDelete, onEd
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-12">
-        <button 
-          onClick={onClose}
-          className="p-2 hover:bg-gray-50 rounded-lg transition-colors"
-        >
-          <X className="w-6 h-6" />
+    <div className="editorial-page space-y-10">
+      <div className="flex flex-col justify-between gap-6 border-b border-faint pb-6 md:flex-row md:items-center">
+        <button onClick={onClose} className="text-link w-fit">
+          <ArrowLeft className="h-4 w-4" />
+          返回图库
         </button>
-        
+
         {!isVisitor && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             {isEditing ? (
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm hover:bg-gray-800 transition-colors"
-              >
-                <Save className="w-4 h-4" />
+              <button onClick={handleSave} className="editorial-button">
+                <Save className="h-4 w-4" />
                 保存
               </button>
             ) : (
               <>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200 transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
+                <button onClick={() => setIsEditing(true)} className="ghost-button">
+                  <Edit2 className="h-4 w-4" />
                   快速编辑
                 </button>
-                <button
-                  onClick={onEdit}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors"
-                >
+                <button onClick={onEdit} className="editorial-button">
                   详细编辑
                 </button>
               </>
             )}
-            <button
-              onClick={handleDelete}
-              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
+            <button onClick={handleDelete} className="ghost-button text-accent">
+              <Trash2 className="h-4 w-4" />
             </button>
           </div>
         )}
       </div>
 
-      {/* Product Image */}
-      <div className="aspect-video rounded-2xl overflow-hidden bg-gray-100 mb-12">
-        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-      </div>
-
-      {/* Product Info */}
-      <div className="space-y-8">
-        {/* Name & Category */}
-        <div className="space-y-2">
-          {isEditing ? (
-            <input
-              type="text"
-              value={editedProduct.name}
-              onChange={(e) => setEditedProduct({ ...editedProduct, name: e.target.value })}
-              className="text-4xl font-light w-full border-b border-gray-200 pb-2 focus:outline-none focus:border-black"
-            />
-          ) : (
-            <h1 className="text-4xl font-light">{product.name}</h1>
-          )}
-          <p className="text-gray-400">{product.category}</p>
+      <section className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <div className="sticky top-24 overflow-hidden bg-surface-container-low">
+            <img src={product.image} alt={product.name} className="h-full max-h-[760px] w-full object-cover" />
+          </div>
         </div>
 
-        {/* Price Section */}
-        <div className="grid grid-cols-2 gap-6">
-          {!isVisitor && (
-            <div className="p-6 bg-gray-50 rounded-2xl">
-              <p className="text-sm text-gray-400 mb-1">成本价格</p>
+        <div className="space-y-10 lg:col-span-5">
+          <div>
+            <p className="eyebrow mb-5">{product.category}</p>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editedProduct.name}
+                onChange={(event) => setEditedProduct({ ...editedProduct, name: event.target.value })}
+                className="w-full border-b border-faint bg-transparent pb-4 text-5xl font-medium leading-none md:text-7xl"
+              />
+            ) : (
+              <h1 className="text-5xl font-medium leading-none md:text-7xl">{product.name}</h1>
+            )}
+            <p className="mt-8 text-lg leading-relaxed text-muted">{product.description}</p>
+          </div>
+
+          <div className="grid grid-cols-2 border-y border-faint">
+            {!isVisitor && (
+              <div className="border-r border-faint py-6 pr-6">
+                <p className="eyebrow mb-3">成本价</p>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editedProduct.costPrice}
+                    onChange={(event) => setEditedProduct({ ...editedProduct, costPrice: Number(event.target.value) })}
+                    className="w-full bg-transparent text-3xl font-medium"
+                  />
+                ) : (
+                  <p className="text-3xl font-medium">¥{product.costPrice.toFixed(0)}</p>
+                )}
+              </div>
+            )}
+            <div className="py-6 pl-6">
+              <p className="eyebrow mb-3">{isVisitor ? '销售价' : '市场价'}</p>
               {isEditing ? (
                 <input
                   type="number"
-                  value={editedProduct.costPrice}
-                  onChange={(e) => setEditedProduct({ ...editedProduct, costPrice: Number(e.target.value) })}
-                  className="text-2xl font-light w-full bg-transparent focus:outline-none"
+                  value={editedProduct.marketPrice}
+                  onChange={(event) => setEditedProduct({ ...editedProduct, marketPrice: Number(event.target.value) })}
+                  className="w-full bg-transparent text-3xl font-medium"
                 />
               ) : (
-                <p className="text-2xl font-light">¥{product.costPrice.toFixed(0)}</p>
+                <p className="text-3xl font-medium">¥{product.marketPrice.toFixed(0)}</p>
               )}
             </div>
-          )}
-          <div className="p-6 bg-gray-50 rounded-2xl">
-            <p className="text-sm text-gray-400 mb-1">{isVisitor ? '销售价格' : '市场价格'}</p>
-            {isEditing ? (
-              <input
-                type="number"
-                value={editedProduct.marketPrice}
-                onChange={(e) => setEditedProduct({ ...editedProduct, marketPrice: Number(e.target.value) })}
-                className="text-2xl font-light w-full bg-transparent focus:outline-none"
-              />
-            ) : (
-              <p className="text-2xl font-light">¥{product.marketPrice.toFixed(0)}</p>
-            )}
           </div>
-        </div>
 
-        {/* Add to Quote Button */}
-        <div className="pt-4">
-          <button
-            onClick={() => onAddToQuote(product)}
-            className="w-full py-4 bg-primary text-white rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-3 hover:shadow-xl transition-all active:scale-95 cursor-pointer group"
-          >
-            <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            添加到报价单
+          <button onClick={() => onAddToQuote(product)} className="editorial-button w-full">
+            <ShoppingCart className="h-4 w-4" />
+            加入报价单
           </button>
-        </div>
 
-        {/* Details */}
-        <div className="space-y-4 pt-6 border-t border-gray-100">
-          <h3 className="text-sm text-gray-400 uppercase tracking-wider">产品详情</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-400">材质</p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editedProduct.material}
-                  onChange={(e) => setEditedProduct({ ...editedProduct, material: e.target.value })}
-                  className="w-full py-1 border-b border-gray-200 focus:outline-none focus:border-black"
-                />
-              ) : (
-                <p className="mt-1">{product.material}</p>
-              )}
-            </div>
-            <div>
-              <p className="text-gray-400">供应商</p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editedProduct.supplier}
-                  onChange={(e) => setEditedProduct({ ...editedProduct, supplier: e.target.value })}
-                  className="w-full py-1 border-b border-gray-200 focus:outline-none focus:border-black"
-                />
-              ) : (
-                <p className="mt-1">{product.supplier}</p>
-              )}
-            </div>
-            <div>
-              <p className="text-gray-400">SKU</p>
-              <p className="mt-1">{product.sku}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">库存状态</p>
-              {isEditing ? (
-                <select
-                  value={editedProduct.status}
-                  onChange={(e) => setEditedProduct({ ...editedProduct, status: e.target.value as any })}
-                  className="w-full py-1 border-b border-gray-200 focus:outline-none focus:border-black bg-transparent"
-                >
-                  <option value="In Stock">有货</option>
-                  <option value="Low Stock">低库存</option>
-                  <option value="Out of Stock">缺货</option>
-                </select>
-              ) : (
-                <p className="mt-1">{product.status}</p>
-              )}
-            </div>
+          <div className="space-y-0">
+            <p className="eyebrow mb-4">产品详情</p>
+            {[
+              ['材质', product.material, 'material'],
+              ['供应商', product.supplier, 'supplier'],
+              ['SKU', product.sku, 'sku'],
+              ['库存状态', product.status, 'status'],
+            ].map(([label, value, key]) => (
+              <div key={key} className="grid grid-cols-3 border-t border-faint py-4 text-sm">
+                <p className="text-muted">{label}</p>
+                <div className="col-span-2">
+                  {isEditing && key !== 'sku' ? (
+                    key === 'status' ? (
+                      <select
+                        value={editedProduct.status}
+                        onChange={(event) => setEditedProduct({ ...editedProduct, status: event.target.value as Product['status'] })}
+                        className="w-full bg-transparent"
+                      >
+                        <option value="In Stock">有货</option>
+                        <option value="Low Stock">低库存</option>
+                        <option value="Out of Stock">缺货</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={String(editedProduct[key as keyof Product] || '')}
+                        onChange={(event) => setEditedProduct({ ...editedProduct, [key]: event.target.value })}
+                        className="w-full bg-transparent"
+                      />
+                    )
+                  ) : (
+                    <p>{value}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
 
-        {/* Description */}
-        <div className="space-y-4 pt-6 border-t border-gray-100">
-          <h3 className="text-sm text-gray-400 uppercase tracking-wider">描述</h3>
-          {isEditing ? (
-            <textarea
-              value={editedProduct.description}
-              onChange={(e) => setEditedProduct({ ...editedProduct, description: e.target.value })}
-              className="w-full h-32 p-4 bg-gray-50 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-gray-200"
-            />
-          ) : (
-            <p className="text-gray-600 leading-relaxed">{product.description}</p>
+          {isEditing && (
+            <div className="border-t border-faint pt-6">
+              <p className="eyebrow mb-4">描述</p>
+              <textarea
+                value={editedProduct.description}
+                onChange={(event) => setEditedProduct({ ...editedProduct, description: event.target.value })}
+                className="min-h-36 w-full border border-faint bg-paper-soft p-4 text-sm leading-relaxed"
+              />
+            </div>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

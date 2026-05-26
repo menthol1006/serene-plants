@@ -1,9 +1,9 @@
-import { Trash2, ArrowLeft, Download, CreditCard, Loader2 } from 'lucide-react';
+import { ArrowLeft, CreditCard, Download, Loader2, Trash2 } from 'lucide-react';
 import React from 'react';
-import { Product } from '../types';
-import { User } from '../types/user';
 import { jsPDF } from 'jspdf';
 import { toPng } from 'html-to-image';
+import { Product } from '../types';
+import { User } from '../types/user';
 
 interface QuotesProps {
   items: { product: Product; quantity: number }[];
@@ -17,7 +17,6 @@ export default function Quotes({ items, onRemove, onNavigateToGallery, currentUs
   const quoteRef = React.useRef<HTMLDivElement>(null);
   const [isCustomerView, setIsCustomerView] = React.useState(isVisitor);
   const [isExporting, setIsExporting] = React.useState(false);
-
   const [shippingFee, setShippingFee] = React.useState<number>(0);
   const [installationFee, setInstallationFee] = React.useState<number>(0);
 
@@ -28,32 +27,17 @@ export default function Quotes({ items, onRemove, onNavigateToGallery, currentUs
 
   const handleExport = async () => {
     if (!quoteRef.current || isExporting) return;
-    
+
     try {
       setIsExporting(true);
-      
-      const element = quoteRef.current;
-      
-      // Use html-to-image which handles modern CSS (oklch/oklab) much better than html2canvas
-      const dataUrl = await toPng(element, {
-        quality: 1.0,
+      const dataUrl = await toPng(quoteRef.current, {
+        quality: 1,
         pixelRatio: 2,
-        backgroundColor: '#D6D6CC', // Match the surface-dim color
-        filter: (node) => {
-          // Equivalent of data-no-export
-          if (node instanceof HTMLElement) {
-            return node.getAttribute('data-no-export') !== 'true';
-          }
-          return true;
-        }
+        backgroundColor: '#f4efe7',
+        filter: (node) => !(node instanceof HTMLElement) || node.getAttribute('data-no-export') !== 'true',
       });
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: 'a4' // Use standard A4
-      });
-      
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' });
       const img = new Image();
       img.src = dataUrl;
       await new Promise((resolve) => {
@@ -62,9 +46,8 @@ export default function Quotes({ items, onRemove, onNavigateToGallery, currentUs
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (img.height * pdfWidth) / img.width;
-      
       pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`报价单_${isCustomerView ? '客户版' : '内部版'}_${new Date().getTime()}.pdf`);
+      pdf.save(`报价单_${isCustomerView ? '客户版' : '内部版'}_${Date.now()}.pdf`);
     } catch (error) {
       console.error('PDF generation failed:', error);
       alert('PDF 生成失败，请重试');
@@ -74,179 +57,158 @@ export default function Quotes({ items, onRemove, onNavigateToGallery, currentUs
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-4xl mb-2 font-serif italic">客户报价清单</h1>
-          <p className="text-on-surface-variant uppercase tracking-widest text-[10px] font-bold">Proposal & Order Summary &bull; Serene Botanical</p>
+    <div className="editorial-page space-y-12">
+      <section className="grid grid-cols-1 gap-8 border-b border-faint pb-10 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <p className="eyebrow mb-5">Proposal studio</p>
+          <h1 className="text-[48px] font-medium leading-none md:text-[86px]">客户报价清单</h1>
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col items-start gap-3 lg:col-span-4 lg:items-end lg:justify-end">
           {!isVisitor && (
-            <button 
+            <button
               onClick={() => setIsCustomerView(!isCustomerView)}
-              className={`px-6 py-2 rounded-full text-[10px] uppercase font-bold tracking-widest transition-all cursor-pointer ${
-                isCustomerView ? 'bg-secondary text-white shadow-lg' : 'bg-surface-dim/20 text-on-surface-variant'
-              }`}
+              className={isCustomerView ? 'editorial-button' : 'ghost-button'}
             >
               {isCustomerView ? '当前：客户视图' : '当前：内部视图'}
             </button>
           )}
-          <button 
-            onClick={onNavigateToGallery}
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary hover:opacity-70 transition-opacity cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" /> 继续添加产品
+          <button onClick={onNavigateToGallery} className="text-link">
+            <ArrowLeft className="h-4 w-4" />
+            继续添加产品
           </button>
         </div>
-      </div>
+      </section>
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-[48px] p-24 text-center border-2 border-dashed border-outline-variant/30">
-          <CreditCard className="w-16 h-16 text-primary/20 mx-auto mb-6" />
-          <h2 className="text-2xl mb-4 font-serif italic text-primary/60">您的报价单目前是空的</h2>
-          <button 
-            onClick={onNavigateToGallery}
-            className="px-8 py-3 bg-primary text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-lg hover:shadow-xl transition-all cursor-pointer"
-          >
-            浏览产品图库
-          </button>
+        <div className="grid min-h-[48vh] place-items-center border-y border-faint py-20 text-center">
+          <div>
+            <CreditCard className="mx-auto mb-6 h-12 w-12 text-accent" />
+            <h2 className="text-4xl font-medium">报价单目前是空的</h2>
+            <button onClick={onNavigateToGallery} className="editorial-button mt-8">
+              浏览产品图库
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-8">
-          {/* Action Button */}
           <div className="flex justify-end">
-            <button 
-              onClick={handleExport}
-              disabled={isExporting}
-              className="px-10 py-4 bg-primary text-white rounded-2xl flex items-center justify-center gap-3 hover:shadow-xl transition-all active:scale-95 text-xs uppercase tracking-widest font-bold group cursor-pointer disabled:opacity-50"
-            >
-              {isExporting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Download className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
-              )}
+            <button onClick={handleExport} disabled={isExporting} className="editorial-button disabled:opacity-50">
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               {isCustomerView ? '导出客户版 PDF' : '导出内部版 PDF'}
             </button>
           </div>
 
-          {/* Exportable Content Container */}
-          <div ref={quoteRef} className="bg-surface-dim p-12 rounded-[60px] border border-outline-variant/10 shadow-sm overflow-hidden">
-            <div className="mb-12 flex justify-between items-start">
-              <div>
-                <h2 className="text-4xl mb-2 font-serif italic text-primary">Serene Botanical</h2>
-                <p className="text-on-surface-variant uppercase tracking-widest text-sm font-bold">专业仿真植物方案报价单</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-on-surface-variant font-medium">日期: {new Date().toLocaleDateString()}</p>
-                <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-widest mt-1">NO. {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Order List */}
-              <div className="lg:col-span-2 space-y-4">
-                {items.map((item) => (
-                  <div key={item.product.id} className="bg-white p-6 rounded-[32px] shadow-sm border border-outline-variant/10 flex items-center gap-6 group">
-                    <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-sm flex-shrink-0">
-                      <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-serif italic text-primary">{item.product.name}</h3>
-                      <div className="flex gap-4 mt-1">
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant/60">{item.product.category}</span>
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant/60">单价: ¥{item.product.marketPrice.toFixed(2)}</span>
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant/60">数量: {item.quantity}</span>
-                      </div>
-                    </div>
-                    <div className="text-right flex flex-col items-end gap-2">
-                      <p className="text-lg font-sans font-medium text-primary">¥{(item.product.marketPrice * item.quantity).toFixed(2)}</p>
-                      <button 
-                        onClick={() => onRemove(item.product.id)}
-                        className="p-2 text-on-surface-variant hover:text-secondary hover:bg-neutral-bone rounded-full transition-colors flex items-center justify-center"
-                        data-no-export="true"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pricing Table Summary */}
-              <div className="space-y-6">
-                <section className="bg-primary text-white p-10 rounded-[48px] shadow-2xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16" />
-                  <h3 className="text-xs uppercase tracking-[0.2em] font-bold opacity-60 mb-8">报价总计</h3>
-                  <div className="space-y-6">
-                    <div className="flex justify-between items-baseline">
-                      <span className="text-sm font-medium opacity-70">项目总数</span>
-                      <span className="text-xl font-medium">{items.length} 个品种</span>
-                    </div>
-                    <div className="space-y-4 pt-2">
-                      <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl">
-                        <span className="text-xs font-medium opacity-70">运输费用</span>
-                        <input 
-                          type="number" 
-                          value={shippingFee || ''} 
-                          onChange={(e) => setShippingFee(parseFloat(e.target.value) || 0)}
-                          className="bg-transparent border-b border-white/20 w-20 text-right font-sans focus:border-white outline-none"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl">
-                        <span className="text-xs font-medium opacity-70">安装费用</span>
-                        <input 
-                          type="number" 
-                          value={installationFee || ''} 
-                          onChange={(e) => setInstallationFee(parseFloat(e.target.value) || 0)}
-                          className="bg-transparent border-b border-white/20 w-20 text-right font-sans focus:border-white outline-none"
-                          placeholder="0.00"
-                        />
-                      </div>
-                    </div>
-                    {!isCustomerView && (
-                      <div className="flex justify-between items-baseline">
-                        <span className="text-sm font-medium opacity-70">预估成本</span>
-                        <span className="text-xl font-medium">¥{totalCost.toFixed(2)}</span>
-                      </div>
-                    )}
-                    <div className="h-[1px] bg-white/10 w-full" />
-                    <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-widest opacity-60">最终报价总额</p>
-                      <p className="text-5xl font-sans font-medium tracking-tighter">¥{totalMarket.toFixed(2)}</p>
-                    </div>
-                    {!isCustomerView && (
-                      <div className="flex justify-between items-center pt-4">
-                        <span className="text-xs uppercase tracking-widest opacity-60">综合毛利率</span>
-                        <span className="text-lg font-bold text-white bg-white/10 px-3 py-1 rounded-full">{totalMargin.toFixed(1)}%</span>
-                      </div>
-                    )}
-                  </div>
-                </section>
-                
-                <div className="p-6 bg-white rounded-3xl border border-outline-variant/10 text-xs text-on-surface-variant leading-relaxed">
-                  <p className="font-bold mb-2 uppercase tracking-widest opacity-60">报价细则</p>
-                  <ul className="space-y-1 list-disc pl-4">
-                    <li>所有报价已包含增值税</li>
-                    <li>物流及配送费用另计</li>
-                    <li>本报价单有效期 30 天</li>
-                  </ul>
+          <div ref={quoteRef} className="bg-paper p-2">
+            <div className="border border-faint bg-paper-soft p-6 md:p-10">
+              <div className="grid grid-cols-1 gap-8 border-b border-faint pb-10 lg:grid-cols-12">
+                <div className="lg:col-span-8">
+                  <p className="eyebrow mb-4">Serene Botanical</p>
+                  <h2 className="text-5xl font-medium leading-none md:text-7xl">Proposal & Order Summary</h2>
+                </div>
+                <div className="text-sm text-muted lg:col-span-4 lg:text-right">
+                  <p>日期：{new Date().toLocaleDateString('zh-CN')}</p>
+                  <p className="mt-2 uppercase tracking-[0.12em]">NO. {Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-20 pt-12 border-t border-outline-variant/20 grid grid-cols-2 gap-12">
-              <div>
-                <p className="text-xs uppercase tracking-widest font-bold text-on-surface-variant mb-6">我们的承诺</p>
-                <p className="text-sm text-on-surface-variant leading-relaxed max-w-sm">提供业界最高标准的仿真植物，细节考究，环保耐用。我们专注于为您的办公及生活空间带来自然美感。</p>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-serif italic text-primary mb-2">Serene Botanical</p>
-                <div className="mt-8 opacity-20">
-                  {/* Decorative stamp-like element */}
-                  <div className="inline-block border-4 border-current rounded-full p-4 rotate-12">
-                    <span className="text-xs font-bold text-primary uppercase">Official Quote</span>
+              <div className="grid grid-cols-1 gap-10 pt-10 lg:grid-cols-12">
+                <div className="lg:col-span-8">
+                  {items.map((item) => (
+                    <div key={item.product.id} className="grid grid-cols-1 gap-5 border-b border-faint py-6 md:grid-cols-12 md:items-center">
+                      <div className="md:col-span-2">
+                        <div className="aspect-square overflow-hidden bg-surface-container-low">
+                          <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
+                        </div>
+                      </div>
+                      <div className="md:col-span-5">
+                        <h3 className="text-2xl font-medium">{item.product.name}</h3>
+                        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted">{item.product.category}</p>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 text-sm md:col-span-5 md:text-right">
+                        <div>
+                          <p className="eyebrow mb-2">单价</p>
+                          <p>¥{item.product.marketPrice.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="eyebrow mb-2">数量</p>
+                          <p>{item.quantity}</p>
+                        </div>
+                        <div>
+                          <p className="eyebrow mb-2">小计</p>
+                          <p className="font-medium">¥{(item.product.marketPrice * item.quantity).toFixed(2)}</p>
+                          <button
+                            onClick={() => onRemove(item.product.id)}
+                            className="mt-3 inline-flex text-accent"
+                            data-no-export="true"
+                            aria-label="移除产品"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <aside className="lg:col-span-4">
+                  <div className="sticky top-24 border border-ink bg-ink p-7 text-paper">
+                    <p className="eyebrow mb-8 text-paper/60">报价总计</p>
+                    <div className="space-y-5">
+                      <div className="flex justify-between">
+                        <span className="text-paper/70">项目总数</span>
+                        <span>{items.length} 个品种</span>
+                      </div>
+                      <label className="flex items-center justify-between gap-5 border-t border-paper/15 pt-5">
+                        <span className="text-paper/70">运输费用</span>
+                        <input
+                          type="number"
+                          value={shippingFee || ''}
+                          onChange={(event) => setShippingFee(parseFloat(event.target.value) || 0)}
+                          className="w-24 border-b border-paper/25 bg-transparent text-right focus:border-paper"
+                          placeholder="0.00"
+                        />
+                      </label>
+                      <label className="flex items-center justify-between gap-5 border-t border-paper/15 pt-5">
+                        <span className="text-paper/70">安装费用</span>
+                        <input
+                          type="number"
+                          value={installationFee || ''}
+                          onChange={(event) => setInstallationFee(parseFloat(event.target.value) || 0)}
+                          className="w-24 border-b border-paper/25 bg-transparent text-right focus:border-paper"
+                          placeholder="0.00"
+                        />
+                      </label>
+                      {!isCustomerView && (
+                        <div className="flex justify-between border-t border-paper/15 pt-5">
+                          <span className="text-paper/70">预计成本</span>
+                          <span>¥{totalCost.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="border-t border-paper/15 pt-7">
+                        <p className="text-xs uppercase tracking-[0.16em] text-paper/60">最终报价总额</p>
+                        <p className="mt-3 text-5xl font-medium leading-none">¥{totalMarket.toFixed(2)}</p>
+                      </div>
+                      {!isCustomerView && (
+                        <div className="flex justify-between border-t border-paper/15 pt-5">
+                          <span className="text-paper/70">综合毛利率</span>
+                          <span>{totalMargin.toFixed(1)}%</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </aside>
+              </div>
+
+              <div className="mt-16 grid grid-cols-1 gap-8 border-t border-faint pt-8 md:grid-cols-2">
+                <div>
+                  <p className="eyebrow mb-4">我们的承诺</p>
+                  <p className="max-w-md text-sm leading-relaxed text-muted">
+                    提供高标准仿真植物方案，关注质感、空间比例与长期耐用性，为办公及生活空间带来自然秩序。
+                  </p>
+                </div>
+                <div className="md:text-right">
+                  <p className="text-2xl font-medium">Serene Botanical</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Official Quote</p>
                 </div>
               </div>
             </div>

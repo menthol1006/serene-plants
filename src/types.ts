@@ -24,3 +24,12 @@ export interface ActivityLog {
   time: string;
   type: 'inventory' | 'price' | 'alert';
 }
+
+export interface LandscapeShowcaseConfig {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  productIds: string[];
+  updatedAt: string;
+}

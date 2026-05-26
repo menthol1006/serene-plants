@@ -1,40 +1,93 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
-  --font-sans: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Helvetica Neue", "Arial", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Inter", "Helvetica Neue", "Arial", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary: #5A5A40;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #5A5A40;
-  
-  --color-neutral-bone: #F5F5F0;
-  --color-surface-card: #ffffff;
-  --color-surface-dim: #D6D6CC;
-  --color-surface-bright: #E8E8E1;
-  
-  --color-on-surface: #2D2D2A;
-  --color-on-surface-variant: #5C5C55;
-  --color-outline-variant: #D6D6CC;
-  
-  --color-botanical-green: #3A3A35;
-  --color-secondary: #7c535b;
+  --color-paper: #f4efe7;
+  --color-paper-soft: #fbf8f2;
+  --color-ink: #171412;
+  --color-muted: #786b60;
+  --color-faint: #d8cec2;
+  --color-accent: #c75132;
+  --color-accent-dark: #8f2f1d;
+
+  --color-primary: #171412;
+  --color-on-primary: #f4efe7;
+  --color-primary-container: #c75132;
+  --color-neutral-bone: #f4efe7;
+  --color-surface: #f4efe7;
+  --color-surface-card: #fbf8f2;
+  --color-surface-container: #fbf8f2;
+  --color-surface-container-low: #eee5da;
+  --color-surface-container-high: #e6dacd;
+  --color-surface-dim: #d8cec2;
+  --color-surface-bright: #fbf8f2;
+  --color-on-surface: #171412;
+  --color-on-surface-variant: #786b60;
+  --color-outline-variant: #d8cec2;
+  --color-botanical-green: #171412;
+  --color-secondary: #c75132;
 }
 
 @layer base {
+  html {
+    background: var(--color-paper);
+  }
+
   body {
-    @apply bg-neutral-bone text-on-surface font-sans antialiased;
+    @apply bg-paper text-ink font-sans antialiased;
+    letter-spacing: 0;
   }
 
   h1, h2, h3, h4 {
-    @apply font-serif tracking-tight text-primary;
+    @apply font-sans text-ink;
+    letter-spacing: 0;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .editorial-page {
+    @apply mx-auto w-full max-w-[1440px] px-5 py-10 md:px-10 lg:px-14;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-muted;
+  }
+
+  .display-title {
+    @apply text-[52px] font-medium leading-[0.95] tracking-normal text-ink md:text-[88px] lg:text-[120px];
+  }
+
+  .section-rule {
+    @apply border-t border-faint;
+  }
+
+  .text-link {
+    @apply inline-flex items-center gap-2 border-b border-ink pb-1 text-sm font-semibold uppercase tracking-[0.12em] text-ink transition-colors hover:border-accent hover:text-accent;
+  }
+
+  .editorial-button {
+    @apply inline-flex items-center justify-center gap-2 border border-ink bg-ink px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-paper transition-colors hover:bg-accent hover:border-accent;
+  }
+
+  .ghost-button {
+    @apply inline-flex items-center justify-center gap-2 border border-faint px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-ink transition-colors hover:border-ink;
+  }
+
+  .line-input {
+    @apply w-full border-b border-faint bg-transparent py-3 text-sm text-ink placeholder:text-muted focus:border-ink;
   }
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 1px var(--color-primary);
+  border-color: var(--color-ink) !important;
+  box-shadow: none;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -44,6 +97,6 @@ input:focus, select:focus, textarea:focus {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-surface-dim);
+  background: var(--color-faint);
   border-radius: 10px;
 }

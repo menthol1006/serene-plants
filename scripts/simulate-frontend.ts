@@ -18,7 +18,7 @@ async function simulateFrontendLoad() {
   try {
     console.log('1. 模拟 subscribeToProducts...');
 
-    // 这模拟了 firebaseService.subscribeToProducts 的行为
+    // 这模拟了 supabaseService.subscribeToProducts 的行为
     const { data: products, error } = await supabase
       .from('products')
       .select('*');

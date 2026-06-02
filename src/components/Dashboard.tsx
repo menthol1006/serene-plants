@@ -19,7 +19,7 @@ export default function Dashboard({ products, activities, onSelectProduct, onVie
   const avgCost = totalProducts > 0 ? products.reduce((sum, product) => sum + product.costPrice, 0) / totalProducts : 0;
   const avgMarket = totalProducts > 0 ? products.reduce((sum, product) => sum + product.marketPrice, 0) / totalProducts : 0;
   const avgMargin = avgMarket > 0 ? ((avgMarket - avgCost) / avgMarket) * 100 : 0;
-  const featured = products.slice(0, 3);
+  const featured = products.slice(0, 6);
   const heroProduct = products[0];
 
   const stats = isVisitor

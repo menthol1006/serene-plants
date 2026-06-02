@@ -8,10 +8,10 @@ const STORAGE_KEYS = {
 
 // 默认产品数据
 const DEFAULT_PRODUCTS: Product[] = [
-  { id: '1', name: '北欧丝绒玫瑰', category: '丝绸花卉', material: '高级丝绸 / 聚合物', supplier: '翡翠苗圃有限公司', description: '具有深红色的色调和天鹅绒般的质感。', costPrice: 45, marketPrice: 189, stock: 120, image: 'https://picsum.photos/seed/rose/800/1000', status: 'In Stock', sku: 'PE-ROSE-001' },
-  { id: '2', name: '特级龟背竹叶', category: '稀有天南星科', material: '耐用聚乙烯', supplier: '热带绿植行', description: '巨大的分瓣叶片，具有极高的装饰性。', costPrice: 85, marketPrice: 245, stock: 45, image: 'https://picsum.photos/seed/monstera/800/1000', status: 'In Stock', sku: 'PE-MONS-002' },
-  { id: '3', name: '琴叶榕大型盆栽', category: '大型绿植', material: '涂层织物 / 环保塑料', supplier: '艺境花卉', description: '经典的室内装饰绿植，形态优美。', costPrice: 120, marketPrice: 480, stock: 8, image: 'https://picsum.photos/seed/fiddle/800/1000', status: 'Low Stock', sku: 'PE-FIG-003' },
-  { id: '4', name: '荒漠宝石多肉', category: '多肉植物', material: '环保树脂', supplier: '沙生植物培育基地', description: '仿真度极高的沙漠植物，适合干燥环境。', costPrice: 35, marketPrice: 98, stock: 200, image: 'https://picsum.photos/seed/succulent/800/1000', status: 'In Stock', sku: 'PE-SUCC-004' }
+  { id: '1', name: '北欧丝绒玫瑰', category: '副造景', material: '高级丝绸 / 聚合物', supplier: '翡翠苗圃有限公司', description: '具有深红色的色调和天鹅绒般的质感。', costPrice: 45, marketPrice: 189, stock: 120, image: 'https://picsum.photos/seed/rose/800/1000', status: 'In Stock', sku: 'PE-ROSE-001' },
+  { id: '2', name: '特级龟背竹叶', category: '副造景', material: '耐用聚乙烯', supplier: '热带绿植行', description: '巨大的分瓣叶片，具有极高的装饰性。', costPrice: 85, marketPrice: 245, stock: 45, image: 'https://picsum.photos/seed/monstera/800/1000', status: 'In Stock', sku: 'PE-MONS-002' },
+  { id: '3', name: '琴叶榕大型盆栽', category: '主造景', material: '涂层织物 / 环保塑料', supplier: '艺境花卉', description: '经典的室内装饰绿植，形态优美。', costPrice: 120, marketPrice: 480, stock: 8, image: 'https://picsum.photos/seed/fiddle/800/1000', status: 'Low Stock', sku: 'PE-FIG-003' },
+  { id: '4', name: '荒漠宝石多肉', category: '小型植物', material: '环保树脂', supplier: '沙生植物培育基地', description: '仿真度极高的沙漠植物，适合干燥环境。', costPrice: 35, marketPrice: 98, stock: 200, image: 'https://picsum.photos/seed/succulent/800/1000', status: 'In Stock', sku: 'PE-SUCC-004' }
 ];
 
 const DEFAULT_ACTIVITIES: ActivityLog[] = [

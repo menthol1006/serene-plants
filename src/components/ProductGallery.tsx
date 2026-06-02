@@ -12,7 +12,7 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ products, onSelectProduct, onDeleteProduct, onAddToQuote, currentUser }: ProductGalleryProps) {
-  const categories = ['全部分类', '丝绸花卉', '干花', '大型绿植', '多肉植物', '硬木乔木', '稀有天南星科'];
+  const categories = ['全部分类', '主造景', '副造景', '小型植物'];
   const isVisitor = !currentUser || currentUser.isAnonymous;
   const isEditable = !isVisitor;
 

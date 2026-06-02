@@ -15,7 +15,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '1',
     name: '北欧丝绒玫瑰',
-    category: '丝绸花卉',
+    category: '副造景',
     material: '高级丝绸 / 聚合物',
     supplier: '翡翠苗圃有限公司',
     description: '具有深红色的色调和天鹅绒般的质感。',
@@ -29,7 +29,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '2',
     name: '特级龟背竹叶',
-    category: '稀有天南星科',
+    category: '副造景',
     material: '耐用聚乙烯',
     supplier: '热带绿植行',
     description: '巨大的分瓣叶片，具有极高的装饰性。',
@@ -43,7 +43,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '3',
     name: '琴叶榕大型盆栽',
-    category: '大型绿植',
+    category: '主造景',
     material: '涂层织物 / 环保塑料',
     supplier: '艺境花卉',
     description: '经典的室内装饰绿植，形态优美。',
@@ -57,7 +57,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '4',
     name: '荒漠宝石多肉',
-    category: '多肉植物',
+    category: '小型植物',
     material: '柔性树脂',
     supplier: '沙地园艺',
     description: '紧凑的莲座状结构，呈现出迷人的灰绿色。',
@@ -71,7 +71,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '5',
     name: '香樟木景观树',
-    category: '硬木乔木',
+    category: '主造景',
     material: '真实原木杆 / 聚酰亚胺叶片',
     supplier: '艺境花卉',
     description: '真实触感的树皮，经久耐用。',

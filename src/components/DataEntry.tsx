@@ -102,12 +102,9 @@ export default function DataEntry({ initialData, onSave, onCancel }: DataEntryPr
                       className="line-input appearance-none"
                     >
                       <option>请选择分类</option>
-                      <option>丝绸花卉</option>
-                      <option>干花</option>
-                      <option>大型绿植</option>
-                      <option>多肉植物</option>
-                      <option>硬木乔木</option>
-                      <option>稀有天南星科</option>
+                      <option>主造景</option>
+                      <option>副造景</option>
+                      <option>小型植物</option>
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
                   </span>
